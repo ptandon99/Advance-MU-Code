@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+    <http:listener-config name="Server_HTTPS_Listener_Configuration_8082" protocol="HTTPS" host="0.0.0.0" port="8082" doc:name="HTTP Listener Configuration">
+        <tls:context>
+            <tls:key-store type="jks" path="server/serverKeyStore.jks" alias="selfsigned" keyPassword="password" password="password"/>
+        </tls:context>
+    </http:listener-config>
+    <http:listener-config name="Client_HTTP_Listener_8081" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <http:request-config name="Server_HTTPS_Request_8082" protocol="HTTPS" host="localhost" port="8082" doc:name="HTTP Request Configuration">
+        <tls:context>
+            <tls:trust-store path="server/serverTrustStore.jks" password="password" type="jks"/>
+        </tls:context>
+    </http:request-config>
+    <flow name="serverFlow">
+        <http:listener config-ref="Server_HTTPS_Listener_Configuration_8082" path="/server" allowedMethods="GET" doc:name="Server_HTTP_Listener @8082"/>
+        <set-payload value="#['SERVER : received request.....']" doc:name="Set Payload"/>
+    </flow>
+    <flow name="ClientFlow">
+        <http:listener config-ref="Client_HTTP_Listener_8081" path="/client" allowedMethods="GET" doc:name="Client_HTTP_Listener @8081"/>
+        <http:request config-ref="Server_HTTPS_Request_8082" path="/server" method="GET" doc:name="Invoke Server via HTTPS @ 8082"/>
+    </flow>
+</mule>
